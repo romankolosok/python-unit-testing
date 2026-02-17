@@ -65,7 +65,15 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'htmlcov/**,coverage.xml', allowEmptyArchive: true
+                    publishHTML target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'htmlcov',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report'
+                    ]
+                    archiveArtifacts artifacts: 'coverage.xml', allowEmptyArchive: true
                 }
             }
         }
