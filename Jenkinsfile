@@ -10,6 +10,8 @@ pipeline {
         // Ensure Poetry uses the project venv in workspace
         POETRY_VIRTUALENVS_IN_PROJECT = 'true'
         POETRY_VIRTUALENVS_CREATE = 'true'
+        // Poetry installs to ~/.local/bin - add to PATH for all stages
+        PATH = "${env.HOME}/.local/bin:${env.PATH}"
     }
 
     stages {
