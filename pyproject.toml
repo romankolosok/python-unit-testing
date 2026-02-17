@@ -1,0 +1,44 @@
+[project]
+name = "python-unit-testing"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "Roman Kolosok", email = "romakolosok14@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=8.3.4)", # Updated to stable versions
+    "pytest-cov (>=6.0.0)",
+    "pytest-mock (>=3.14.0)",
+    "ruff (>=0.9.0)"          # Ensure recent version for 3.13 support
+]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = ["tests"]
+addopts = [
+    "--tb=short", # Concise failure tracebacks
+    "--no-header", # Hide the system/version info
+    "--no-summary", # Hide the "X passed" summary at the end
+    "-rfE"
+]
+
+# --- RUFF CONFIGURATION (This was missing) ---
+[tool.ruff]
+target-version = "py313"  # Explicitly target Python 3.13
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"] # Pycodestyle, Pyflakes, Isort, Bugbear
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
