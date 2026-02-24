@@ -4,8 +4,6 @@ pipeline {
     options {
         timeout(time: 15, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
-        // This ensures the GitHub status is updated automatically by the plugin
-        preserveStashes(buildCount: 5)
     }
 
     environment {
@@ -22,7 +20,7 @@ pipeline {
             }
         }
 
-        stage('Setup Python & Dependencies') {
+        stage('Setup') {
             steps {
                 sh '''#!/bin/bash
                     set -e
@@ -34,34 +32,21 @@ pipeline {
             }
         }
 
-        stage('Lint') {
-            steps {
-                // We use || true so the pipeline continues even if linting has minor warnings
-                sh 'poetry run ruff check src tests || true'
-                sh 'poetry run ruff format --check src tests || true'
-            }
-        }
-
         stage('Test & Coverage') {
             steps {
-                // Combines testing and coverage generation into one step for efficiency
-                // Generates junit.xml (Tests) and coverage.xml (Cobertura format)
+                // Ensure --cov points to your actual package directory
                 sh 'poetry run pytest tests/ -v --junitxml=junit.xml --cov=src --cov-report=xml --cov-report=html'
             }
             post {
                 always {
-                    // 1. Record Test Results in Jenkins
                     junit allowEmptyResults: true, testResults: 'junit.xml'
 
-                    // 2. Record Coverage (This posts the "Check" to GitHub automatically)
                     recordCoverage(
                         tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']],
                         id: 'python-coverage',
-                        name: 'Python Code Coverage',
-                        sourceCodeRetention: 'LAST_BUILD'
+                        name: 'Python Code Coverage'
                     )
 
-                    // 3. Publish HTML Report for Jenkins UI
                     publishHTML target: [
                         allowMissing: true,
                         alwaysLinkToLastBuild: true,
@@ -77,16 +62,14 @@ pipeline {
 
     post {
         always {
-            // Sends the "Success/Failure" status back to the GitHub commit list
-            step([$class: 'GitHubCommitStatusSetter',
-                  contextSource: [$class: 'DefaultCommitContextSource', context: 'Jenkins/Build-and-Test'],
-                  reposSource: [$class: 'AnyRepoSource']])
+            // Updated to the most reliable syntax to avoid "instantiation" errors
+            step([$class: 'GitHubCommitStatusSetter', contextSource: [$class: 'DefaultCommitContextSource', context: 'Jenkins/Build']])
 
             cleanWs(deleteDirs: true, patterns: [[pattern: '.venv/**', type: 'INCLUDE']])
         }
 
         failure {
-            echo 'Build or tests failed. Check the GitHub Checks tab for details.'
+            echo 'Build failed. Check the GitHub interface or Jenkins logs.'
         }
     }
 }
