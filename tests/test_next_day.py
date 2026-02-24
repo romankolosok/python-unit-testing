@@ -10,8 +10,6 @@ MONTHS_30 = [4, 6, 9, 11]
 
 
 class TestNextDate:
-
-    @pytest.mark.skip(reason="Temporarily disabled | Too many tests")
     class TestInvalidInput:
         @pytest.mark.parametrize(
             "input_date",
@@ -159,7 +157,6 @@ class TestNextDate:
             ):
                 nextDate(MAX_YEAR, 12, 31)
 
-
     @pytest.mark.skip(reason="Temporarily disabled | Too many tests")
     class TestValidInput:
         @pytest.mark.parametrize(
@@ -261,4 +258,3 @@ class TestNextDate:
         )
         def test_nextDate_month_31(self, input_date, expected_date):
             assert nextDate(*input_date) == expected_date
-
